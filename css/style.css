@@ -22,7 +22,6 @@ body {
     font-size: 20px;
 }
 
-
 #map {
     height: 100%;
     position: absolute;
@@ -35,8 +34,6 @@ body {
 }
 
 .locations {
-    border: 1px solid #999;
-    border-radius: 3px;
     height: 100%;
     line-height: 35px;
     padding: 10px 10px 30px 10px;
@@ -49,10 +46,14 @@ body {
 }
 
 .form-control {
-        background: #fff;
+    background: #fff;
 }
 
-#info-content tr {
-    backgroundColor: #FFFFFF;
+#resultsTable {
+    background: #fff;
+}
+
+#wikipedia-links {
+
 }
 

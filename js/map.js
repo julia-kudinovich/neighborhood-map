@@ -1,5 +1,5 @@
 var map, infoWindow;
-// Create a new blank array for all the restaurant markers.
+// Create a new blank array for all the casino markers.
 var markers = [];
 //path to the marker icon
 var MARKER_PATH = 'https://developers.google.com/maps/documentation/javascript/images/marker_green';
@@ -20,7 +20,7 @@ function initMap() {
         var request = {
             location: lv,
             radius: '5000',
-            type: ['restaurant']
+            type: ['casino']
         };
 
         places = new google.maps.places.PlacesService(map);
@@ -32,10 +32,10 @@ function initMap() {
 }
 
 
-// Search for restaurants within the radius specified.
+// Search for casinos within the radius specified.
 function search(results, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
-        // Create a marker for each restaurants found, and assign a letter to each marker icon.
+        // Create a marker for each casino found, and assign a letter to each marker icon.
         for (var i = 0; i < results.length; i++) {
             var markerLetter = String.fromCharCode('A'.charCodeAt(0) + (i % 26));
             var markerIcon = MARKER_PATH + markerLetter + '.png';
@@ -45,7 +45,7 @@ function search(results, status) {
                 animation: google.maps.Animation.DROP,
                 icon: markerIcon
             });
-            // If the user clicks a restaurant marker, animate a marker and show the details in an info window.
+            // If the user clicks a casino marker, animate a marker and show the details in an info window.
                   markers[i].placeResult = results[i];
                   google.maps.event.addListener(markers[i], 'click', showInfoWindow);
                   setTimeout(dropMarker(i), i * 100);
@@ -77,8 +77,6 @@ function addResult(result, i) {
     var nameTd = document.createElement('td');
     var icon = document.createElement('img');
     icon.src = markerIcon;
-    icon.setAttribute('class', 'placeIcon');
-    icon.setAttribute('className', 'placeIcon');
     var name = document.createTextNode(result.name);
     iconTd.appendChild(icon);
     nameTd.appendChild(name);
@@ -88,7 +86,7 @@ function addResult(result, i) {
 }
 
 
-// Animate selected marker and show the information for the restaurants in an info window.
+// Animate selected marker and show the information for the casino in an info window.
 function showInfoWindow() {
     if (currentMarker){
         currentMarker.setAnimation(null);
@@ -111,9 +109,11 @@ function showInfoWindow() {
 });
 }
 
+
+
 // Load the place information into the HTML elements used by the info window.
 function buildIWContent(place) {
-    document.getElementById('iw-icon').innerHTML = '<img class="restaurantIcon" ' + 'src="' + place.icon + '"/>';
+    document.getElementById('iw-icon').innerHTML = '<img ' + 'src="' + place.icon + '"/>';
     document.getElementById('iw-url').innerHTML = '<b><a href="' + place.url + '">' + place.name + '</a></b>';
     document.getElementById('iw-address').textContent = place.vicinity;
 
@@ -138,4 +138,37 @@ function buildIWContent(place) {
         } else {
             document.getElementById('iw-website-row').style.display = 'none';
         }
+
+// Get Wikipedia articles
+
+        $('#iw-wiki').text("");
+        var name = place.name;
+        var wikiAPI = 'http://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=' + name + '&callback=wikiCallback';
+
+        var wikiRequestTimeout = setTimeout(function(){
+            $('#wikipedia-links').text("Failed to get Wikipedia resources");
+        }, 8000);
+
+        $.ajax({
+            url: wikiAPI,
+            dataType: 'jsonp',
+            contentType: "application/json; charset=utf-8",
+            type: 'GET',
+        }).done(function(data) {
+            articles = data[1];
+            console.log(articles.length);
+            if (articles.length < 1) {
+                $('#iw-wiki').text('No articles found');
+            }
+            else {
+                var article = articles[0];
+                var url = 'https://en.wikipedia.org/wiki/' + article;
+                $('#iw-wiki').append('<a href="'+url+'"target="_blank">'+article+'</a>');
+            };
+            clearTimeout(wikiRequestTimeout);
+    });
 }
+
+
+
+
