@@ -1,17 +1,16 @@
-/* * {
-  outline: 1px solid red !important;
-}
- */
-body {
-    font-family: "Quicksand", sans-serif;
-    /* color: #f08080; */
-    font-weight: 400;
-}
+/*  * {
+ outline: 1px solid red !important;
+} */
 
-body {
+html, body{
+    height:100%;
+    width:100%;
+    padding:2;
+    margin:0;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 700;
     background-color: #98878f;
 }
-
 
 .header-logo {
     max-width: 100px;
@@ -19,7 +18,7 @@ body {
 
 .title{
     font-weight: 400;
-    font-size: 20px;
+    font-size: 25px;
 }
 
 #map {
@@ -33,14 +32,6 @@ body {
     height: 200px;
 }
 
-.locations {
-    height: 100%;
-    line-height: 35px;
-    padding: 10px 10px 30px 10px;
-    text-align: left;
-    margin: 10px;
-}
-
 .container {
     margin: 10px;
 }
@@ -49,11 +40,14 @@ body {
     background: #fff;
 }
 
-#resultsTable {
-    background: #fff;
+.iw_attribute_name {
+    font-weight: bold;
 }
 
-#wikipedia-links {
-
+#location {
+    cursor: pointer;
 }
 
+#iw-name{
+    text-align: center;
+}
