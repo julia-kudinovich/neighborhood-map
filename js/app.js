@@ -189,7 +189,15 @@ function initMap() {
             google.maps.event.addListener(markers[i], 'click', showInfoWindow);
             setTimeout(dropMarker(i), i * 100);
         }
-            ko.applyBindings(new ViewModel);
+
+// Center map on lv point when browser resizes
+        var currCenter = map.getCenter();
+        google.maps.event.addDomListener(window, 'resize', function() {
+            map.setCenter(currCenter);
+        });
+
+// Initialize knockout.js bindings
+        ko.applyBindings(new ViewModel);
 }
 
 // Drops markers on a map
@@ -254,8 +262,15 @@ function buildIWContent(place) {
         clearTimeout(wikiRequestTimeout);
     });
 
-        //Yelp Data..
+        //TODO: Add Yelp Data..
 }
+
+//Show/hide sidebar when hamburger button is clicked
+$(document).ready(function() {
+    $('[data-toggle=offcanvas]').click(function() {
+        $('.row-offcanvas').toggleClass('active');
+    });
+});
 
 
 var Model = function(data) {
@@ -264,14 +279,13 @@ var Model = function(data) {
     self.icon = data.marker.icon;
     self.marker = data.marker;
     self.visibleMarker = ko.observable(true);
-    self.visibleMarkerMap = ko.observable(self.marker.visible);
 };
 
 
 var ViewModel = function(){
     var self = this;
     self.locations = ko.observableArray();
-    self.filter = ko.observable();
+    self.filter = ko.observable('');
 
     casinos.forEach(function(casino){
         self.locations.push(new Model(casino));
@@ -281,18 +295,19 @@ var ViewModel = function(){
         google.maps.event.trigger(clickedMarker.marker, 'click');
     };
 
-    // self.filterMarkers = ko.computed(function(){
-    //     self.locations().forEach(function(loc){
-    //         if(loc.name.toLowerCase().indexOf(self.filter) >= 0){
-    //             loc.visibleMarker(true);
-    //             loc.visibleMarkerMap(true);
-    //         }
-    //         else {
-    //             loc.visibleMarker(false);
-    //             loc.visibleMarkerMap(false);
-    //         }
-    //     });
-    // });
+    self.filterMarkers = ko.computed(function(){
+        self.locations().forEach(function(loc){
+            if(loc.name.toLowerCase().indexOf(self.filter()) >= 0){
+                loc.visibleMarker(true);
+                loc.marker.setVisible(true);
+            }
+            else {
+                loc.visibleMarker(false);
+                loc.marker.setVisible(false);
+            }
+        });
+    });
 
 }
+
 

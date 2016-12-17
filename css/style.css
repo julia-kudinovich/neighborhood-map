@@ -1,9 +1,15 @@
 /*  * {
  outline: 1px solid red !important;
 } */
+html, body, .container-fluid, .row, .map {
+    height: 100%;
+}
+
+body {
+    padding-top: 65px;
+}
 
 html, body{
-    height:100%;
     width:100%;
     padding:2;
     margin:0;
@@ -22,18 +28,8 @@ html, body{
 }
 
 #map {
+    width:100%;
     height: 100%;
-    position: absolute;
-    right: 0px;
-}
-
-#pano {
-    width: 200px;
-    height: 200px;
-}
-
-.container {
-    margin: 10px;
 }
 
 .form-control {
@@ -48,6 +44,38 @@ html, body{
     cursor: pointer;
 }
 
-#iw-name{
+#iw-name {
     text-align: center;
 }
+
+#sidebar {
+    padding-left: 20px;
+}
+
+/* collapsed sidebar styles */
+@media screen and (max-width: 770px) {
+    .row-offcanvas {
+        position: relative;
+        -webkit-transition: all 0.25s ease-out;
+        -moz-transition: all 0.25s ease-out;
+        transition: all 0.25s ease-out;
+  }
+
+  .row-offcanvas-left
+  .sidebar-offcanvas {
+    left: -41.6%;
+  }
+.row-offcanvas-left.active {
+    left: 43%;
+  }
+  .sidebar-offcanvas {
+    position: absolute;
+    top: 0;
+    width: 41.6%;
+  }
+}
+
+
+
+
+
