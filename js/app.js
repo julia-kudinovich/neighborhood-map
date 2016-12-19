@@ -1,9 +1,17 @@
 var map, infoWindow, currentMarker;
+// Initializing variables for placeholders for infowindow data
+var place_name = document.getElementById('name');
+var address = document.getElementById('address');
+var phone = document.getElementById('phone')
+var rating = document.getElementById('rating');
+var website = document.getElementById('website');
+var wiki = document.getElementById('wiki');
+var foursquare = document.getElementById('foursquare');
 
 // Create a new blank array for all the casino markers.
 var markers = [];
 
-//path to the marker icon
+// Path to the marker icon
 var MARKER_PATH = 'https://developers.google.com/maps/documentation/javascript/images/marker_green';
 
 var casinos = [
@@ -156,7 +164,7 @@ function initMap() {
     var styles = [{"elementType":"geometry","stylers":[{"hue":"#ff4400"},{"saturation":-68},{"lightness":-4},{"gamma":0.72}]},{"featureType":"road","elementType":"labels.icon"},{"featureType":"landscape.man_made","elementType":"geometry","stylers":[{"hue":"#0077ff"},{"gamma":3.1}]},{"featureType":"water","stylers":[{"hue":"#00ccff"},{"gamma":0.44},{"saturation":-33}]},{"featureType":"poi.park","stylers":[{"hue":"#44ff00"},{"saturation":-23}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"hue":"#007fff"},{"gamma":0.77},{"saturation":65},{"lightness":99}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"gamma":0.11},{"weight":5.6},{"saturation":99},{"hue":"#0091ff"},{"lightness":-86}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"lightness":-48},{"hue":"#ff5e00"},{"gamma":1.2},{"saturation":-23}]},{"featureType":"transit","elementType":"labels.text.stroke","stylers":[{"saturation":-64},{"hue":"#ff9100"},{"lightness":16},{"gamma":0.47},{"weight":2.7}]}];
 
 
-        var lv = new google.maps.LatLng( 36.1147,-115.1728);
+        var lv = new google.maps.LatLng(36.1147,-115.1728);
     //Constructor creates a new map centered on Las Vegas Strip
         map = new google.maps.Map(document.getElementById('map'), {
             center: lv,
@@ -165,7 +173,7 @@ function initMap() {
         });
 
         infoWindow = new google.maps.InfoWindow({
-            content: document.getElementById('info-content')
+            content: document.getElementById('info-window')
         });
 
         // Create a marker for each casino, and assign a letter to each marker icon.
@@ -197,7 +205,7 @@ function initMap() {
         });
 
 // Initialize knockout.js bindings
-        ko.applyBindings(new ViewModel);
+        ko.applyBindings(new ViewModel());
 }
 
 // Drops markers on a map
@@ -228,41 +236,75 @@ function showInfoWindow() {
 
 // Load the place information into the HTML elements used by the info window.
 function buildIWContent(place) {
-    document.getElementById('iw-name').innerHTML = '<b>' + place.name + '</b>';
-    document.getElementById('iw-address').textContent = place.address;
-    document.getElementById('iw-phone').textContent = place.phone;
-    document.getElementById('iw-rating').innerHTML = place.rating + '/5';
-    document.getElementById('iw-website').innerHTML = '<a href="'+place.website+'"target="_blank">'+place.name+'</a> ';
+    place_name.innerHTML = '<b>' + place.name + '</b>';
+    address.textContent = place.address;
+    phone.textContent = place.phone;
+    rating.innerHTML = place.rating + '/5';
+    website.innerHTML = '<a href="'+place.website+'"target="_blank">'+place.name+'</a> ';
 
 // Get Wikipedia articles
-
-    $('#iw-wiki').text("");
-    var name = place.name;
-    var wikiAPI = 'http://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=' + name + '&callback=wikiCallback';
+    var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=' + place.name + '&callback=wikiCallback';
 
     var wikiRequestTimeout = setTimeout(function(){
-        $('#wikipedia-links').text("Failed to get Wikipedia resources");
+        wiki.textContent = 'Failed to get Wikipedia resources';
     }, 8000);
 
     $.ajax({
         url: wikiAPI,
         dataType: 'jsonp',
-        contentType: "application/json; charset=utf-8",
+        contentType: 'application/json; charset=utf-8',
         type: 'GET',
     }).done(function(data) {
         articles = data[1];
         if (articles.length < 1) {
-            $('#iw-wiki').text('No articles found');
+            wiki.text('No articles found');
         }
         else {
             var article = articles[0];
             var url = 'https://en.wikipedia.org/wiki/' + article;
-            $('#iw-wiki').append('<a href="'+url+'"target="_blank">'+article+'</a>');
-        };
+            wiki.innerHTML = '<a href="'+url+'"target="_blank">'+article+'</a>';
+        }
         clearTimeout(wikiRequestTimeout);
     });
 
-        //TODO: Add Yelp Data..
+    //Get Foursquare data
+    var clientID = 'X14ECGOWZKYSANYXODQ5T5MTISNUXAV0AZOUPIUALBC0JLBL';
+    var clientSecret = 'D4QVPYPNAUWHPZJCL0ARYUSHOBZ1TJ1HBD2UL5KSOAF3DPXM';
+    var ll = place.position.lat() + ',' + place.position.lng();
+    var food_string  ='';
+
+    $.ajax({
+        url: 'https://api.foursquare.com/v2/venues/search',
+        dataType: 'jsonp',
+        contentType: 'application/json; charset=utf-8',
+        type: 'GET',
+        data: {
+            client_id: clientID,
+            client_secret: clientSecret,
+            ll: ll,
+            radius: 100,
+            v: '20161219',
+            limit: 5,
+            categoryId: '4d4b7105d754a06374d81259' //Category id for food
+        }
+    }).done(function(data) {
+        // If api returns error notify the user.
+        if(data.meta.code!=200){
+            foursquare.innerHTML = 'Failed to get Foursqaure data';
+        }
+        else {
+            for (var i = 0; i < data.response.venues.length; i++) {
+                if(data.response.venues[i].menu){
+                    food_string += data.response.venues[i].name + ' - <a href="'+data.response.venues[i].menu.url + '"target="_blank">View Menu</a><br>';
+                }
+                else {
+                    food_string += data.response.venues[i].name + '<br>';
+                }
+            }
+            foursquare.innerHTML = food_string;
+        }
+
+    });
 }
 
 //Show/hide sidebar when hamburger button is clicked
@@ -308,6 +350,6 @@ var ViewModel = function(){
         });
     });
 
-}
+};
 
 
