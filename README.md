@@ -1,8 +1,11 @@
-#Sin City Casinos Map
+#Sin City Casinos Map (Udacity Front End Nanodegree Project)
 
 ### How to run the app
 
-Go <a href="https://julia-kudinovich.github.io/neighborhood-map/" target="_blank">here</a> and run the app directly from my GitHub page.
+1. Clone the project repository to your local machine.
+2. Open the index.html in your browser.
+
+As another option you can go <a href="https://julia-kudinovich.github.io/neighborhood-map/" target="_blank">here</a> and run the app directly from my GitHub page.
 
 ### About the app
 

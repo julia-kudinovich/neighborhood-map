@@ -1,7 +1,7 @@
-/*  * {
- outline: 1px solid red !important;
-} */
-html, body, .container-fluid, .row, .map {
+html,
+body,
+.row,
+.map {
     height: 100%;
 }
 
@@ -9,7 +9,8 @@ body {
     padding-top: 65px;
 }
 
-html, body{
+html,
+body{
     width:100%;
     margin:0;
     font-family: "Quicksand", sans-serif;
@@ -46,6 +47,8 @@ html, body{
 
 #name {
     text-align: center;
+    font-weight: bold;
+
 }
 
 #sidebar {

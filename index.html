@@ -6,11 +6,10 @@
     <link rel="stylesheet" href="css/style.css">
     <title>Sin City Casinos</title>
 </head>
-<body>
-    <div class="container-fluid">
-        <!-- top navbar -->
-        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-           <div class="container">
+<body class="container-fluid">
+       <!-- top navbar -->
+        <header class="navbar navbar-default navbar-fixed-top" role="navigation">
+           <nav class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target=".sidebar-nav">
                         <span class="glyphicon glyphicon-menu-hamburger">
@@ -18,73 +17,36 @@
                     <a href="#" class="pull-left"><img class="logo" src="img/las_vegas.png"></a>
                     <a class="navbar-brand" href="#">Sin City Casinos</a>
                 </div>
-           </div>
-        </div>
+           </nav>
+        </header>
 
 <!-- left navbar -->
         <div class="row row-offcanvas row-offcanvas-left">
-            <div class="col-sm-2 sidebar-offcanvas" id="sidebar" role="navigation">
-                <input type="search" class="form-control row filter" placeholder="Filter Locations"  data-bind="textInput: filter">
+            <aside class="col-sm-2 sidebar-offcanvas" id="sidebar" role="navigation">
+                <input type="search" class="form-control row filter" placeholder="Filter..."  data-bind="textInput: filter">
                 <table class="row" id="resultsTable">
                     <tbody id="results" data-bind="foreach: locations">
-                        <tr data-bind="click: $parent.clickMarker, visible: visibleMarker">
+                        <tr data-bind="click: $parent.clickListItem, visible: visibleMarker">
                             <td><img data-bind="attr: {src: icon}"></td>
                             <td id="location" data-bind="text: name"></td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            <div class="col-sm-10 map">
+            </aside>
+            <main class="col-sm-10 map">
                 <div class="google-map-canvas" id="map"></div>
-            </div>
+            </main>
         </div>
-    </div>
 
-<!--DOM element for info window-->
-    <div style="display: none">
-        <div id="info-window">
-            <table>
-                <tr>
-                    <td></td>
-                    <td id="name"></td>
-                </tr>
-                <tr>
-                    <td class="attribute_name">Address:</td>
-                    <td id="address"></td>
-                </tr>
-                <tr>
-                    <td class="attribute_name">Phone#:</td>
-                    <td id="phone"></td>
-                </tr>
-                <tr>
-                    <td class="attribute_name">Rating:</td>
-                    <td id="rating"></td>
-                </tr>
-                <tr>
-                    <td class="attribute_name">Website:</td>
-                    <td id="website"></td>
-                </tr>
-                <tr>
-                    <td class="attribute_name">Wikipedia:</td>
-                    <td id="wiki"></td>
-                </tr>
-                <tr>
-                    <td class="attribute_name">Food Spots:</td>
-                    <td id="foursquare"></td>
-                </tr>
-            </table>
-        </div>
-    </div>
+    <script src="js/knockout-3.2.0.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/jquery.jsonp-2.4.0.min.js"></script>
+    <script src="js/bootstrap.min.js" async></script>
+    <script src="js/bootstrap.offcanvas.min.js" async></script>
+    <script src="js/app.js"></script>
 
-    <script type="text/javascript" src="js/knockout-3.2.0.js"></script>
-    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js" async></script>
-    <script type="text/javascript" src="js/bootstrap.offcanvas.min.js" async></script>
-    <script type="text/javascript" src="js/app.js"></script>
-
-    <script async defer
-        src=
-        "https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyAnEFrx2gwauUYxbgX7AUkJ8u7TbzO14O8&v=3&callback=initMap">
+    <script async defer onerror="googleMapsError()"
+        src = "https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyAnEFrx2gwauUYxbgX7AUkJ8u7TbzO14O8&v=3&callback=initMap">
     </script>
      <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
     <script>

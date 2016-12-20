@@ -1,16 +1,6 @@
 var map, infoWindow, currentMarker;
-// Initializing variables for placeholders for infowindow data
-var place_name = document.getElementById('name');
-var address = document.getElementById('address');
-var phone = document.getElementById('phone')
-var rating = document.getElementById('rating');
-var website = document.getElementById('website');
-var wiki = document.getElementById('wiki');
-var foursquare = document.getElementById('foursquare');
-
 // Create a new blank array for all the casino markers.
 var markers = [];
-
 // Path to the marker icon
 var MARKER_PATH = 'https://developers.google.com/maps/documentation/javascript/images/marker_green';
 
@@ -70,7 +60,7 @@ var casinos = [
         address: '3600 S Las Vegas Blvd, Las Vegas, NV 89109',
         phone: '(888) 987-6667',
         rating: 4.3,
-        website: 'www.bellagio.com',
+        website: 'https://www.bellagio.com',
         location: {
             lat: 36.1126,
             lng: -115.1767
@@ -130,7 +120,7 @@ var casinos = [
         address: '3300 S Las Vegas Blvd, Las Vegas, NV 89109',
         phone: '(702) 894-7111',
         rating: 4,
-        website: 'www.treasureisland.com',
+        website: 'https://www.treasureisland.com',
         location: {
             lat: 36.1247,
             lng: -115.1721
@@ -140,7 +130,7 @@ var casinos = [
         address: '3131 S Las Vegas Blvd, Las Vegas, NV 89109',
         phone: '(702) 770-7000',
         rating: 4.6,
-        website: 'www.wynnlasvegas.com',
+        website: 'https://www.wynnlasvegas.com',
         location: {
             lat: 36.1265,
             lng: -115.1657
@@ -150,7 +140,7 @@ var casinos = [
         address: '115 E Tropicana Ave, Las Vegas, NV 89109',
         phone: '(702) 739-9000',
         rating: 3.2,
-        website: 'www.hooterscasinohotel.com/',
+        website: 'https://www.hooterscasinohotel.com/',
         location: {
             lat: 36.1005,
             lng: -115.1677
@@ -172,9 +162,7 @@ function initMap() {
             styles: styles,
         });
 
-        infoWindow = new google.maps.InfoWindow({
-            content: document.getElementById('info-window')
-        });
+        infoWindow = new google.maps.InfoWindow();
 
         // Create a marker for each casino, and assign a letter to each marker icon.
         for (var i = 0; i < casinos.length; i++) {
@@ -193,6 +181,8 @@ function initMap() {
             });
 
             casinos[i].marker = markers[i];
+            getApiData(casinos[i]);
+
             // If the user clicks a casino marker, animate a marker and show the details in an info window.
             google.maps.event.addListener(markers[i], 'click', showInfoWindow);
             setTimeout(dropMarker(i), i * 100);
@@ -206,6 +196,10 @@ function initMap() {
 
 // Initialize knockout.js bindings
         ko.applyBindings(new ViewModel());
+}
+// Error handling for google maps
+function googleMapsError() {
+        document.getElementById('map').textContent = "There was a problem with loading Google Maps. Please try again later.";
 }
 
 // Drops markers on a map
@@ -223,10 +217,13 @@ function showInfoWindow() {
     }
     var marker = this;
     currentMarker = this;
-    this.setAnimation(google.maps.Animation.BOUNCE);
 
+    var contentString = '<table> <tr> <td></td><td id="name">' + this.name + '</td></tr><tr><td class="attribute_name">Address:</td><td id="address">' + this.address + '</td></tr><tr><td class="attribute_name">Phone#:</td><td id="phone">' + this.phone + '</td></tr><tr><td class="attribute_name">Rating:</td><td id="rating">' + this.rating + '/5</td></tr><tr><td class="attribute_name">Website:</td><td id="website"><a href="'+ this.website + '"target="_blank">' + this.name + '</a></td></tr><tr><td class="attribute_name">Wikipedia:</td><td id="wiki">' + this.wikiData + '</td></tr><tr><td class="attribute_name"><table><tr><td>Food Spots:</td></tr><tr><td class="small_text">(Provided by Foursquare)</td></tr></table><td id="foursquare">' + this.foursquareData + '</td></tr></table>';
+
+    infoWindow.setContent(contentString);
+
+    this.setAnimation(google.maps.Animation.BOUNCE);
     infoWindow.open(map, marker);
-    buildIWContent(marker);
 
 // Stop maker animation of infoWindow is closed
     google.maps.event.addListener(infoWindow, 'closeclick', function() {
@@ -234,50 +231,38 @@ function showInfoWindow() {
     });
 }
 
-// Load the place information into the HTML elements used by the info window.
-function buildIWContent(place) {
-    place_name.innerHTML = '<b>' + place.name + '</b>';
-    address.textContent = place.address;
-    phone.textContent = place.phone;
-    rating.innerHTML = place.rating + '/5';
-    website.innerHTML = '<a href="'+place.website+'"target="_blank">'+place.name+'</a> ';
+// Gets data from external APIs
+function getApiData(place) {
+    var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=' + place.name + '&callback=?';
 
-// Get Wikipedia articles
-    var wikiAPI = 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=' + place.name + '&callback=wikiCallback';
-
-    var wikiRequestTimeout = setTimeout(function(){
-        wiki.textContent = 'Failed to get Wikipedia resources';
-    }, 8000);
-
-    $.ajax({
+    $.jsonp({
         url: wikiAPI,
         dataType: 'jsonp',
         contentType: 'application/json; charset=utf-8',
-        type: 'GET',
+        type: 'GET'
     }).done(function(data) {
         articles = data[1];
         if (articles.length < 1) {
-            wiki.text('No articles found');
+            place.marker.wikiData = 'No articles found';
         }
         else {
             var article = articles[0];
             var url = 'https://en.wikipedia.org/wiki/' + article;
-            wiki.innerHTML = '<a href="'+url+'"target="_blank">'+article+'</a>';
+            place.marker.wikiData = '<a href="'+url+'"target="_blank">'+article+'</a>';
         }
-        clearTimeout(wikiRequestTimeout);
+    }).fail(function(jqXHR, textStatus) {
+        place.marker.wikiData = 'Failed to get Wikipedia resources';
     });
 
     //Get Foursquare data
     var clientID = 'X14ECGOWZKYSANYXODQ5T5MTISNUXAV0AZOUPIUALBC0JLBL';
     var clientSecret = 'D4QVPYPNAUWHPZJCL0ARYUSHOBZ1TJ1HBD2UL5KSOAF3DPXM';
-    var ll = place.position.lat() + ',' + place.position.lng();
+    var ll = place.location.lat + ',' + place.location.lng;
     var food_string  ='';
 
     $.ajax({
         url: 'https://api.foursquare.com/v2/venues/search',
-        dataType: 'jsonp',
-        contentType: 'application/json; charset=utf-8',
-        type: 'GET',
+        dataType: 'json',
         data: {
             client_id: clientID,
             client_secret: clientSecret,
@@ -287,10 +272,10 @@ function buildIWContent(place) {
             limit: 5,
             categoryId: '4d4b7105d754a06374d81259' //Category id for food
         }
-    }).done(function(data) {
+   }).done(function(data) {
         // If api returns error notify the user.
         if(data.meta.code!=200){
-            foursquare.innerHTML = 'Failed to get Foursqaure data';
+            place.marker.foursquareData = 'Failed to get Foursqaure data';
         }
         else {
             for (var i = 0; i < data.response.venues.length; i++) {
@@ -301,10 +286,13 @@ function buildIWContent(place) {
                     food_string += data.response.venues[i].name + '<br>';
                 }
             }
-            foursquare.innerHTML = food_string;
+            place.marker.foursquareData = food_string;
         }
 
-    });
+    }).fail(function(jqXHR, textStatus) {
+            place.marker.foursquareData = 'Failed to get Foursqaure data';
+});
+
 }
 
 //Show/hide sidebar when hamburger button is clicked
@@ -316,28 +304,27 @@ $(document).ready(function() {
 
 
 var Model = function(data) {
-    var self = this;
-    self.name = data.name;
-    self.icon = data.marker.icon;
-    self.marker = data.marker;
-    self.visibleMarker = ko.observable(true);
+    this.name = data.name;
+    this.icon = data.marker.icon;
+    this.marker = data.marker;
+   this.visibleMarker = ko.observable(true);
 };
 
 
 var ViewModel = function(){
     var self = this;
-    self.locations = ko.observableArray();
-    self.filter = ko.observable('');
+    this.locations = ko.observableArray([]);
+    this.filter = ko.observable('');
 
     casinos.forEach(function(casino){
         self.locations.push(new Model(casino));
     });
 
-    self.clickMarker = function(clickedMarker) {
-        google.maps.event.trigger(clickedMarker.marker, 'click');
+    this.clickListItem = function(clicked) {
+        google.maps.event.trigger(clicked.marker, 'click');
     };
 
-    self.filterMarkers = ko.computed(function(){
+    this.filterMarkers = ko.computed(function(){
         self.locations().forEach(function(loc){
             if(loc.name.toLowerCase().indexOf(self.filter()) >= 0){
                 loc.visibleMarker(true);
